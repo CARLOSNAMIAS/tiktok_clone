@@ -1,13 +1,9 @@
 {
   "name": "tiktok_clone",
   "version": "1.0.0",
-  "description": "Este proyecto es un clon de la interfaz de usuario de TikTok, creado con HTML, CSS y JavaScript. El objetivo principal es replicar la experiencia de navegación y la apariencia visual de la popular aplicación de videos.",
-  "main": "script.js",
+  "description": "Clon de TikTok con HTML, CSS y JS plano.",
   "scripts": {
-    "build": "node generate-config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "echo 'No build step required'"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC"
 }
