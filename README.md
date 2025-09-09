@@ -4,6 +4,12 @@ Este proyecto es un clon de la interfaz de usuario de TikTok, creado con HTML, C
 
 El feed de videos se carga de forma dinámica desde la API de Pexels y la sección "Descubrir" utiliza la API de Unsplash. Las llamadas a estas APIs se realizan de forma segura a través de **funciones serverless de Vercel**, que protegen las API keys y las mantienen fuera del código del navegador.
 
+## 📸 Vistas Previas
+
+| Pantalla Principal | Comentarios | Descubrir |
+| :---: | :---: | :---: |
+| ![Pantalla Principal](public/img/pantalla.png) | ![Comentarios](public/img/pantalla1.png) | ![Descubrir](public/img/pantalla2.png) |
+
 ## ✨ Características
 
 - **Feed de video infinito**: Scroll vertical para navegar entre videos.
