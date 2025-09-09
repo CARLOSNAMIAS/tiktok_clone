@@ -3,7 +3,7 @@
 const container = document.getElementById('discoverContainer');
 
 // La variable "UNSPLASH_ACCESS_KEY" se tomará del archivo config.js
-fetch(`https://api.unsplash.com/photos/random?count=12&query=travel&client_id=${UNSPLASH_ACCESS_KEY}`)
+fetch('/api/unsplash')
   .then(response => response.json())
   .then(data => {
     data.forEach(item => {

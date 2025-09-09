@@ -1,9 +1,6 @@
 // ========================================
 // CONFIGURACIÓN Y VARIABLES GLOBALES
 // ========================================
-// Ya no necesitas definirla, ya está en config.js
-console.log("Mi API Key de Pexels es:", PEXELS_API_KEY);
-
 const container = document.getElementById('video-feed');
 
 // Categorías para variedad de contenido
@@ -495,4 +492,4 @@ document.getElementById('emojiBtn').addEventListener('click', () => {
 
 // ========================================
 // 
-// ========================================
+// =========================================================
