@@ -63,16 +63,23 @@ window.addEventListener("load", () => {
         const splash = document.getElementById("splash-screen");
         const topbar = document.getElementById("topbar");
 
-        splash.style.opacity = 0;
-        splash.style.transition = "opacity 0.5s ease-out";
+        if (splash) {
+            splash.style.opacity = 0;
+            splash.style.transition = "opacity 0.5s ease-out";
 
-        setTimeout(() => {
-            splash.style.display = "none";
-            topbar.style.display = "flex";
+            setTimeout(() => {
+                splash.style.display = "none";
+                if (topbar) {
+                    topbar.style.display = "flex";
+                }
 
-            // Iniciar carga inicial DESPUÉS de ocultar splash
+                // Iniciar carga inicial DESPUÉS de ocultar splash
+                inicializarVideos();
+            }, 500);
+        } else {
+            // Si no hay splash screen, inicializar directamente
             inicializarVideos();
-        }, 500);
+        }
     }, 2000);
 });
 
@@ -105,24 +112,44 @@ async function cargarVideosIniciales() {
     }
 }
 
+// ========================================
+// FUNCIÓN PRINCIPAL CORREGIDA - USA API DE VERCEL
+// ========================================
 async function cargarVideosPorCategoria(category, limit = 4) {
-    const API_URL = `https://api.pexels.com/videos/search?query=${category}&per_page=${limit}&page=${currentPage}`;
-
     try {
-        const response = await fetch(API_URL, {
-            headers: { Authorization: PEXELS_API_KEY }
-        });
+        // ✅ CAMBIO PRINCIPAL: Usar tu API de Vercel en lugar de Pexels directamente
+        const response = await fetch(`/api/search?query=${encodeURIComponent(category)}&per_page=${limit}&page=${currentPage}`);
 
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`API error: ${response.status} - ${errorData.error || response.statusText}`);
+        }
 
         const data = await response.json();
+
+        // Verificar que tenemos videos
+        if (!data.videos || data.videos.length === 0) {
+            console.warn(`No se encontraron videos para la categoría: ${category}`);
+            return;
+        }
 
         // Procesar videos con calidad inteligente
         const videosPromises = data.videos.map(video => crearVideoOptimizado(video));
         await Promise.all(videosPromises);
 
+        console.log(`Cargados ${data.videos.length} videos para categoría: ${category}`);
+
     } catch (error) {
         console.error(`Error cargando categoría ${category}:`, error);
+        
+        // Opcional: Intentar con una categoría diferente como fallback
+        if (currentPage === 1) {
+            const fallbackCategory = obtenerCategoriaAleatoria();
+            if (fallbackCategory !== category) {
+                console.log(`Intentando categoría alternativa: ${fallbackCategory}`);
+                await cargarVideosPorCategoria(fallbackCategory, limit);
+            }
+        }
     }
 }
 
@@ -327,30 +354,34 @@ function toggleComentarios() {
     const videoFeed = document.getElementById('video-feed');
     const topbar = document.getElementById('topbar');
 
-    if (ventana.classList.contains('mostrar')) {
+    if (ventana && ventana.classList.contains('mostrar')) {
         // Cerrar comentarios
         ventana.classList.remove('mostrar');
-        videoContainer.classList.remove('comments-active');
-        videoFeed.classList.remove('video-reduced');
-        topbar.style.display = "flex";
+        if (videoContainer) videoContainer.classList.remove('comments-active');
+        if (videoFeed) videoFeed.classList.remove('video-reduced');
+        if (topbar) topbar.style.display = "flex";
         document.body.classList.remove('oculto-scroll');
-        document.body.classList.remove('comments-overlay'); // Quitar overlay oscuro
+        document.body.classList.remove('comments-overlay');
         setTimeout(() => {
             ventana.classList.add('oculto');
         }, 300);
-    } else {
+    } else if (ventana) {
         // Abrir comentarios
         ventana.classList.remove('oculto');
-        videoContainer.classList.add('comments-active');
-        videoFeed.classList.add('video-reduced');
-        topbar.style.display = "none";
+        if (videoContainer) videoContainer.classList.add('comments-active');
+        if (videoFeed) videoFeed.classList.add('video-reduced');
+        if (topbar) topbar.style.display = "none";
         document.body.classList.add('oculto-scroll');
-        document.body.classList.add('comments-overlay'); // Agregar overlay oscuro
+        document.body.classList.add('comments-overlay');
         setTimeout(() => {
             ventana.classList.add('mostrar');
         }, 10);
     }
 }
+
+// ========================================
+// EVENTOS DE INTERACCIÓN CON VERIFICACIÓN
+// ========================================
 
 document.addEventListener('click', function (e) {
     const ventana = document.getElementById('ventanaComentarios');
@@ -362,50 +393,49 @@ document.addEventListener('click', function (e) {
     if (ventana && boton && !ventana.contains(e.target) && !boton.contains(e.target)) {
         // Cerrar comentarios al hacer clic fuera
         ventana.classList.remove('mostrar');
-        videoContainer.classList.remove('comments-active');
-        videoFeed.classList.remove('video-reduced');
-        topbar.style.display = "flex";
+        if (videoContainer) videoContainer.classList.remove('comments-active');
+        if (videoFeed) videoFeed.classList.remove('video-reduced');
+        if (topbar) topbar.style.display = "flex";
         document.body.classList.remove('oculto-scroll');
-        document.body.classList.remove('comments-overlay'); // Quitar overlay oscuro
+        document.body.classList.remove('comments-overlay');
         setTimeout(() => {
             ventana.classList.add('oculto');
         }, 300);
     }
-});
 
-// ========================================
-// EVENTOS DE INTERACCIÓN (OPTIMIZADOS)
-// ========================================
-
-// Usar delegación de eventos para mejor performance
-document.addEventListener('click', function (e) {
     // Like buttons
     if (e.target.closest('.like-btn')) {
         const btn = e.target.closest('.like-btn');
         const icon = btn.querySelector('i');
-        btn.classList.toggle('liked');
-        icon.classList.toggle('bi-heart');
-        icon.classList.toggle('bi-heart-fill');
+        if (btn && icon) {
+            btn.classList.toggle('liked');
+            icon.classList.toggle('bi-heart');
+            icon.classList.toggle('bi-heart-fill');
+        }
     }
 
     // Dislike buttons
     if (e.target.closest('.dislike-btn')) {
         const btn = e.target.closest('.dislike-btn');
         const icon = btn.querySelector('i');
-        btn.classList.toggle('disliked');
-        icon.classList.toggle('bi-hand-thumbs-down');
-        icon.classList.toggle('bi-hand-thumbs-down-fill');
+        if (btn && icon) {
+            btn.classList.toggle('disliked');
+            icon.classList.toggle('bi-hand-thumbs-down');
+            icon.classList.toggle('bi-hand-thumbs-down-fill');
+        }
     }
 });
-
 
 //ocultar respuestas//
 function toggleRespuestas(element) {
     const comentario = element.closest('.contenido-comentario');
-    const respuestas = comentario.querySelector('.respuestas');
-    respuestas.classList.toggle('oculto');
+    if (comentario) {
+        const respuestas = comentario.querySelector('.respuestas');
+        if (respuestas) {
+            respuestas.classList.toggle('oculto');
+        }
+    }
 }
-
 
 // ========================================
 // MONITOREO DE PERFORMANCE (OPCIONAL)
@@ -443,53 +473,60 @@ function limpiarVideosLejanos() {
 // Ejecutar monitoreo cada 30 segundos
 setInterval(monitorerarPerformance, 30000);
 
-
-
 // ========================================
 // EVENTOS DE BOTONES GUARDADOS
 // ========================================
 
 function agregarFavorito() {
     const noti = document.getElementById("notificacionFavorito");
-    noti.style.display = "block";
+    if (noti) {
+        noti.style.display = "block";
 
-    // Reiniciar animación
-    noti.classList.remove("animando");
-    void noti.offsetWidth; // trigger reflow
-    noti.classList.add("animando");
+        // Reiniciar animación
+        noti.classList.remove("animando");
+        void noti.offsetWidth; // trigger reflow
+        noti.classList.add("animando");
 
-    // Ocultar después de 2 segundos
-    setTimeout(() => {
-        noti.style.display = "none";
-    }, 2000);
+        // Ocultar después de 2 segundos
+        setTimeout(() => {
+            noti.style.display = "none";
+        }, 2000);
+    }
 }
 
-
-
-
-
 // ========================================
-// EVENTOS OPEN BARRRA DE COMENTARIOS   
+// EVENTOS OPEN BARRA DE COMENTARIOS CON VERIFICACIÓN
 // ========================================
-document.getElementById('enviarBtn').addEventListener('click', () => {
-    const input = document.getElementById('comentarioInput');
-    const texto = input.value.trim();
-    if (texto) {
-        alert(`Comentario enviado: ${texto}`);
-        input.value = '';
+
+// Verificar que los elementos existen antes de agregar event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const enviarBtn = document.getElementById('enviarBtn');
+    const emojiBtn = document.getElementById('emojiBtn');
+    
+    if (enviarBtn) {
+        enviarBtn.addEventListener('click', () => {
+            const input = document.getElementById('comentarioInput');
+            if (input) {
+                const texto = input.value.trim();
+                if (texto) {
+                    alert(`Comentario enviado: ${texto}`);
+                    input.value = '';
+                }
+            }
+        });
+    }
+
+    if (emojiBtn) {
+        emojiBtn.addEventListener('click', () => {
+            const input = document.getElementById('comentarioInput');
+            if (input) {
+                input.value += '😊';
+                input.focus();
+            }
+        });
     }
 });
 
-document.getElementById('emojiBtn').addEventListener('click', () => {
-    // Aquí podrías integrar una librería o solo agregar un emoji manualmente
-    const input = document.getElementById('comentarioInput');
-    input.value += '😊';
-    input.focus();
-});
-
-
-
-
 // ========================================
-// 
-// =========================================================
+// FIN DEL ARCHIVO
+// ========================================
