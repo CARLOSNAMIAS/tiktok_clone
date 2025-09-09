@@ -1,6 +1,6 @@
 # TikTok Clone
 
-Este proyecto es un clon de la interfaz de usuario de TikTok, creado con HTML, CSS y JavaScript. El objetivo principal es replicar la experiencia de navegación y la apariencia visual de la popular aplicación de videos, con un enfoque en la seguridad y el despliegue moderno.
+Este proyecto es un clon de la interfaz de usuario de TikTok, creado con HTML, CSS y JavaScript. El objetivo principal es replicar la experiencia de navegación y la apariencia visual de la popular aplicación. 
 
 El feed de videos se carga de forma dinámica desde la API de Pexels y la sección "Descubrir" utiliza la API de Unsplash. Las llamadas a estas APIs se realizan de forma segura a través de **funciones serverless de Vercel**, que protegen las API keys y las mantienen fuera del código del navegador.
 
