@@ -118,8 +118,7 @@ async function cargarVideosIniciales() {
 async function cargarVideosPorCategoria(category, limit = 4) {
     try {
         // ✅ CAMBIO PRINCIPAL: Usar tu API de Vercel en lugar de Pexels directamente
-        const response = await fetch(`/api/search?query=${encodeURIComponent(category)}&per_page=${limit}&page=${currentPage}`);
-
+        const response = await fetch(`/api/pexels?query=${encodeURIComponent(category)}&per_page=${limit}&page=${currentPage}`);
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(`API error: ${response.status} - ${errorData.error || response.statusText}`);
