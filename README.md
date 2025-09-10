@@ -8,7 +8,7 @@ El feed de videos se carga de forma dinámica desde la API de Pexels y la secci�
 
 | Pantalla Principal | Comentarios | Descubrir |
 | :---: | :---: | :---: |
-| ![Pantalla Principal](public/img/pantalla.png) | ![Comentarios](public/img/pantalla1.png) | ![Descubrir](public/img/pantalla2.png) |
+| ![Pantalla Principal](public/img/pantalla.png) | ![Comentarios](public/img/pantalla2.png) | ![Descubrir](public/img/pantalla1.png) |
 
 ## ✨ Características
 

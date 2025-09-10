@@ -12,6 +12,7 @@ let currentPage = 1;
 let isLoading = false;
 let videosCache = [];
 let observer;
+let scrollObserver; // Para el scroll infinito
 
 // Función para obtener una categoría aleatoria
 function obtenerCategoriaAleatoria() {
@@ -133,7 +134,7 @@ async function cargarVideosPorCategoria(category, limit = 4) {
         }
 
         // Procesar videos con calidad inteligente
-        const videosPromises = data.videos.map(video => crearVideoOptimizado(video));
+        const videosPromises = data.videos.map(video => crearVideoOptimizado(video, category));
         await Promise.all(videosPromises);
 
         console.log(`Cargados ${data.videos.length} videos para categoría: ${category}`);
@@ -152,7 +153,7 @@ async function cargarVideosPorCategoria(category, limit = 4) {
     }
 }
 
-async function crearVideoOptimizado(videoData) {
+async function crearVideoOptimizado(videoData, category) {
     const optimalQuality = QUALITY_CONFIG.getOptimalQuality();
     const videoInfo = QUALITY_CONFIG.getBestVideoUrl(videoData.video_files, optimalQuality);
 
@@ -160,6 +161,11 @@ async function crearVideoOptimizado(videoData) {
 
     const videoWrapper = document.createElement('div');
     videoWrapper.classList.add('video-item');
+
+    // Guardar datos del autor y descripción para la UI dinámica
+    videoWrapper.dataset.author = videoData.user.name || 'Usuario Anónimo';
+    const hashtag = `#${category.replace(/\s/g, '').toLowerCase()}`;
+    videoWrapper.dataset.description = `¡Nuevo video! ${hashtag} #fyp #viralcars`;
 
     // Crear video con carga lazy
     const videoElement = document.createElement('video');
@@ -220,6 +226,18 @@ function configurarIntersectionObserver() {
                 if (video.readyState >= 2) {
                     video.play().catch(console.warn);
                 }
+
+                // --- NUEVO: Actualizar la información del video en la UI ---
+                const wrapper = video.closest('.video-item');
+                if (wrapper && wrapper.dataset.author) {
+                    const videoInfoEl = document.querySelector('.video-info');
+                    if (videoInfoEl) {
+                        videoInfoEl.querySelector('strong').textContent = wrapper.dataset.author;
+                        videoInfoEl.querySelector('p').textContent = wrapper.dataset.description;
+                    }
+                }
+                // --- FIN DEL CAMBIO ---
+
             } else {
                 // Pausar video fuera de vista
                 video.pause();
@@ -282,9 +300,10 @@ async function cargarVideo(videoElement) {
 // ========================================
 
 function configurarScrollInfinito() {
-    const scrollObserver = new IntersectionObserver((entries) => {
+    scrollObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting && !isLoading) {
+                scrollObserver.unobserve(entry.target); // Dejar de observar el elemento actual
                 cargarMasVideos();
             }
         });
@@ -311,6 +330,12 @@ async function cargarMasVideos() {
 
         // Reconfigurar observers para nuevos videos
         aplicarObserversAVideos();
+
+        // NUEVO: Observar el nuevo último video para el siguiente scroll
+        const ultimoVideo = container.lastElementChild;
+        if (ultimoVideo && scrollObserver) {
+            scrollObserver.observe(ultimoVideo);
+        }
 
     } catch (error) {
         console.error('Error cargando más videos:', error);
