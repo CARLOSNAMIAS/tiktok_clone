@@ -4,7 +4,22 @@
 const container = document.getElementById('video-feed');
 
 // Categorías para variedad de contenido
-const CATEGORÍAS = ['BMW 2025', 'Lamborghini', 'Ferrari', 'Porsche', 'McLaren', 'Ford Mustang', 'Chevrolet Corvette'];
+const CATEGORÍAS = [
+  // Autos
+  'Lamborghini','Ferrari','Porsche','Bugatti','Tesla','Ford Mustang','Chevrolet Corvette','Nissan GTR',
+
+  // Ciudades y viajes
+  'Tokio','Nueva York','Dubái','París','Londres','Río de Janeiro','Barcelona',
+
+  // Naturaleza y aventura
+  'Playa','Montañas','Aurora boreal','Desierto','Selva tropical','Cataratas',
+
+  // Estilo de vida y cultura
+  'Música en vivo','Baile urbano','Moda','Café','Graffiti','Skateboarding','Surf',
+
+  // Comida y bebida
+  'Pizza','Hamburguesa','Sushi','Café latte','Helados','Cócteles'
+];
 
 // Control de carga y estado
 let currentCategoryIndex = 0;
